@@ -1,23 +1,183 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mini CRM</title>
+  <title>Mini CRM</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 320px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #007bff;
+      color: white;
+    }
+
+    .btn-danger {
+      background: red;
+      color: white;
+    }
+
+    .btn-warning {
+      background: orange;
+      color: white;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: #eee;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+    }
+
+    #crmPage {
+      display: none;
+    }
+  </style>
 </head>
+
 <body>
 
-<h1>Lead Form</h1>
+  <!-- LOGIN PAGE -->
+  <div class="card" id="loginPage">
+    <h2>Login</h2>
 
-<input type="text" id="name" placeholder="Name"><br><br>
-<input type="email" id="email" placeholder="Email"><br><br>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
 
-<button onclick="addLead()">Add Lead</button>
+    <button class="btn-primary" onclick="login()">Login</button>
+  </div>
 
-<h2>Leads List</h2>
-<ul id="leadList"></ul>
+  <!-- CRM PAGE -->
+  <div class="card" id="crmPage">
+    <h2>Mini CRM</h2>
 
-<script src="script.js"></script>
+    <input type="text" id="name" placeholder="Name">
+    <input type="email" id="email" placeholder="Email">
+
+    <button class="btn-primary" onclick="addLead()">Add Lead</button>
+
+    <h3>Leads</h3>
+
+    <input type="text" id="search" placeholder="Search" onkeyup="searchLead()">
+
+    <ul id="leadList"></ul>
+
+    <button class="btn-danger" onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    let leads = [];
+
+    function login() {
+      let user = document.getElementById("username").value;
+      let pass = document.getElementById("password").value;
+
+      if (user === "admin" && pass === "1234") {
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("crmPage").style.display = "block";
+      } else {
+        alert("Invalid login");
+      }
+    }
+
+    function logout() {
+      document.getElementById("crmPage").style.display = "none";
+      document.getElementById("loginPage").style.display = "block";
+    }
+
+    function addLead() {
+      let name = document.getElementById("name").value;
+      let email = document.getElementById("email").value;
+
+      if (name === "" || email === "") return;
+
+      leads.push({ name, email });
+      displayLeads();
+
+      document.getElementById("name").value = "";
+      document.getElementById("email").value = "";
+    }
+
+    function displayLeads(data = leads) {
+      let list = document.getElementById("leadList");
+      list.innerHTML = "";
+
+      data.forEach((lead, index) => {
+        let li = document.createElement("li");
+
+        li.innerHTML = `
+          <b>${lead.name}</b><br>
+          ${lead.email}<br>
+          <button class="btn-warning" onclick="editLead(${index})">Edit</button>
+          <button class="btn-danger" onclick="deleteLead(${index})">Delete</button>
+        `;
+
+        list.appendChild(li);
+      });
+    }
+
+    function deleteLead(index) {
+      leads.splice(index, 1);
+      displayLeads();
+    }
+
+    function editLead(index) {
+      let newName = prompt("Edit name", leads[index].name);
+      let newEmail = prompt("Edit email", leads[index].email);
+
+      if (newName && newEmail) {
+        leads[index] = { name: newName, email: newEmail };
+        displayLeads();
+      }
+    }
+
+    function searchLead() {
+      let value = document.getElementById("search").value.toLowerCase();
+
+      let filtered = leads.filter(l =>
+        l.name.toLowerCase().includes(value) ||
+        l.email.toLowerCase().includes(value)
+      );
+
+      displayLeads(filtered);
+    }
+  </script>
 
 </body>
 </html>
-
-
