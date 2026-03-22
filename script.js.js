@@ -1,62 +1,68 @@
-// ✅ Load data from localStorage
-let leads = JSON.parse(localStorage.getItem("leads")) || [];
+// Load leads on page load
+window.onload = function () {
+  let leads = JSON.parse(localStorage.getItem("leads")) || [];
+  displayLeads(leads);
+};
 
-// ✅ Add Lead
+// Add lead
 function addLead() {
-    let name = document.getElementById("name").value;
-    let email = document.getElementById("email").value;
+  let name = document.getElementById("name").value;
+  let email = document.getElementById("email").value;
 
-    // Validation
-    if (name === "" || email === "") {
-        alert("Please enter all details");
-        return;
-    }
+  if (name === "" || email === "") {
+    alert("Please fill all fields");
+    return;
+  }
 
-    // Email check
-    if (!email.includes("@") || !email.includes(".")) {
-        alert("Enter valid email");
-        return;
-    }
+  let leads = JSON.parse(localStorage.getItem("leads")) || [];
 
-    // Duplicate check
-    if (leads.some(l => l.email === email)) {
-        alert("Lead already exists");
-        return;
-    }
+  leads.push({ name, email });
 
-    // Add to array
-    leads.push({ name, email });
+  localStorage.setItem("leads", JSON.stringify(leads));
 
-    // Save to localStorage
-    localStorage.setItem("leads", JSON.stringify(leads));
+  displayLeads(leads);
 
-    // Update UI
-    displayLeads();
-
-    // Clear inputs
-    document.getElementById("name").value = "";
-    document.getElementById("email").value = "";
+  document.getElementById("name").value = "";
+  document.getElementById("email").value = "";
 }
 
-// ✅ Display Leads
-function displayLeads() {
-    let list = document.getElementById("leadList");
-    list.innerHTML = "";
+// Display leads
+function displayLeads(leads) {
+  let list = document.getElementById("leadList");
+  list.innerHTML = "";
 
-    leads.forEach((lead, index) => {
-        let li = document.createElement("li");
-        li.innerHTML = `${lead.name} - ${lead.email} 
-        <button onclick="deleteLead(${index})">Delete</button>`;
-        list.appendChild(li);
-    });
+  leads.forEach((lead, index) => {
+    let li = document.createElement("li");
+
+    li.innerHTML = `
+      ${lead.name} - ${lead.email}
+      <button onclick="deleteLead(${index})">Delete</button>
+    `;
+
+    list.appendChild(li);
+  });
 }
 
-// ✅ Delete Lead
+// Delete lead
 function deleteLead(index) {
-    leads.splice(index, 1);
-    localStorage.setItem("leads", JSON.stringify(leads));
-    displayLeads();
+  let leads = JSON.parse(localStorage.getItem("leads")) || [];
+
+  leads.splice(index, 1);
+
+  localStorage.setItem("leads", JSON.stringify(leads));
+
+  displayLeads(leads);
 }
 
-// ✅ IMPORTANT: Page load lo data chupinchadam kosam
-displayLeads();
+// Search leads
+function searchLeads() {
+  let input = document.getElementById("search").value.toLowerCase();
+  let leads = JSON.parse(localStorage.getItem("leads")) || [];
+
+  let filtered = leads.filter(lead =>
+    lead.name.toLowerCase().includes(input) ||
+    lead.email.toLowerCase().includes(input)
+  );
+
+  displayLeads(filtered);
+}
